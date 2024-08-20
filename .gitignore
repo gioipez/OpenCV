@@ -5,7 +5,7 @@ __pycache__/
 
 .DS_Store
 
-ColorCalibration/calibrated_images/
+calibrated_images/
 
 # C extensions
 *.so
