@@ -1,16 +1,3 @@
-"""_summary_
-
-When doing color correction a color chart pattern is needed to
-use as a guide to calibrate the input image and get a calibrated
-image as output with the correct colors.
-
-Args:
-    color_checker_path (_str_): _description_
-    target_image_path (_str_): _description_
-
-Returns:
-    _type_: _description_
-"""
 import sys
 import cv2
 import numpy as np
@@ -29,9 +16,32 @@ logger.addHandler(console_handler)
 
 
 class ColorCorrection:
-    def __init__(self, color_checker_path, target_image_path):
+    """_summary_
+
+    When doing color correction a color chart pattern is needed to
+    use as a guide to calibrate the input image and get a calibrated
+    image as output with the correct colors.
+
+    Args:
+        color_checker_path (_str_): image path where the color chart is located
+        target_image_path (_str_): image to be calibrated
+
+    Returns:
+        _CCheckerDetector_: when object is created returns an object ready to
+                            look if there is any color checker in the reference
+                            picture.
+    """
+    def __init__(self, color_checker_path, target_image_path) -> cv2.mcc.CCheckerDetector:
         self.color_checker_img = cv2.imread(color_checker_path)
         self.target_image = cv2.imread(target_image_path)
+
+        if self.color_checker_img is None or self.target_image is None:
+            logger.error(
+                f"""Image not found.
+                Color checker: {self.color_checker_img}.
+                Target Image: {self.target_image}
+                """)
+            sys.exit(1)
         self.detector = cv2.mcc.CCheckerDetector.create()
 
     def detect_color_checker(self):
@@ -60,7 +70,7 @@ class ColorCorrection:
         src /= 255
         return src
 
-    def create_color_correction_model(self, src):
+    def create_color_correction_model(self, src) -> cv2.ccm_ColorCorrectionModel:
         """
         Create and configure the Color Correction Model (CCM).
         """
@@ -103,9 +113,9 @@ class ColorCorrection:
 
 
 if __name__ == "__main__":
-    color_checker_path = 'sample_images/cc_sample_2.jpeg'
-    target_image_path = 'sample_images/flower_sample_2.jpeg'
-    output_file_name = 'calibrated/corrected_output.jpg'
+    color_checker_path = 'ColorCalibration/sample_images/cc_sample_2.jpeg'
+    target_image_path = 'ColorCalibration/sample_images/flower_sample_2.jpeg'
+    output_file_name = 'ColorCalibration/calibrated_images/corrected_output.jpg'
 
     color_correction = ColorCorrection(color_checker_path, target_image_path)
 
