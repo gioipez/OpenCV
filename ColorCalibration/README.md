@@ -34,6 +34,8 @@ Used module was Macbeth Chart Module, it has several steps:
 
 ![ColorCalibratedWithCC](https://github.com/user-attachments/assets/8ac9ceb8-155e-457c-91a2-8032ba693c50)
 
+Note: As you can see in the result the Color Chart is in a different picture than the flower, but the exposition while taking the two picture was the same, so it was almost under certain conditions to be able to get the best calibration as possible without having the patter inside the picture.
+
 ## Questions
 
 ### What does `cv::mcc::CChecker::getChartsRGB()` return?
