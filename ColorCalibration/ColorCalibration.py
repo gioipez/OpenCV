@@ -110,29 +110,3 @@ class ColorCorrection:
         cv2.imshow("Corrected Image", out_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    color_checker_path = 'ColorCalibration/sample_images/cc_sample_2.jpeg'
-    target_image_path = 'ColorCalibration/sample_images/flower_sample_2.jpeg'
-    output_file_name = 'ColorCalibration/calibrated_images/corrected_output.jpg'
-
-    color_correction = ColorCorrection(color_checker_path, target_image_path)
-
-    checkers = color_correction.detect_color_checker()
-    if checkers is None:
-        logger.error("ColorChecker chart not detected.")
-        sys.exit(1)
-
-    for checker in checkers:
-        color_checker_rgb = color_correction.draw_color_checker(checker)
-        src = color_correction.get_charts_rgb(checker)
-        model = color_correction.create_color_correction_model(src)
-
-        ccm = model.getCCM()
-        loss = model.getLoss()
-        logger.info(f'ccm: {ccm}')
-        logger.info(f'loss: {loss}')
-
-        out_img = color_correction.apply_color_correction(model)
-        color_correction.save_and_display_results(out_img, output_file_name)
