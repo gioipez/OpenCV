@@ -16,9 +16,9 @@ elif len(sys.argv) == 4:
 else:
     logger.error("Invalid number of arguments.")
     sys.exit(1)
-logger.info(f"Color checker: {color_checker_path}")
-logger.info(f"Image to be corrected: {target_image_path}")
-logger.info(f"Output file name: {output_file_name}")
+logger.debug(f"Color checker: {color_checker_path}")
+logger.debug(f"Image to be corrected: {target_image_path}")
+logger.debug(f"Output file name: {output_file_name}")
 
 if "NEF" in output_file_name or "ARW" in output_file_name:
     logger.error("Output file name can not contain NEF or ARW, OpenCV doesn't support it")
@@ -48,5 +48,8 @@ for checker in checkers:
 
     # Correct colors in the target image
     out_img = color_correction.apply_color_correction(model)
-    color_correction.save_result(out_img, output_file_name)
-    logger.info(f"Image {target_image_path} calibrated.")
+    color_correction.save_result(
+        out_img=out_img,
+        output_filename=output_file_name
+        )
+    logger.info(f"{target_image_path} calibrated. Result {output_file_name}")

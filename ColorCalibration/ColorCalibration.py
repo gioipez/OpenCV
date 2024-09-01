@@ -27,7 +27,7 @@ class ColorCorrection:
         isNEFinImageTI = ".NEF" in target_image_path
         isARWinImageTI = ".ARW" in target_image_path
         if ((isNEFinImageCC or isARWinImageCC) and (isNEFinImageTI or isARWinImageTI)):
-            logger.info("Both images are raw images")
+            logger.debug("Both images are raw images")
             ccImage = rawImage(color_checker_path)
             tImage = rawImage(target_image_path)
             self.color_checker_img = ccImage.read_raw_image_bgr()
@@ -36,7 +36,7 @@ class ColorCorrection:
             logger.error("One of the images is not a raw image")
             sys.exit(1)
         else:
-            logger.info("Image aren't raw, maybe JPG, BIMP, or other")
+            logger.debug("Image aren't raw, found JPG, BIMP, or other")
             self.color_checker_img = cv2.imread(color_checker_path)
             self.target_image = cv2.imread(target_image_path)
 
@@ -116,5 +116,5 @@ class ColorCorrection:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def save_result(self, out_img, output_filename='output.jpg'):
+    def save_result(self, out_img, output_filename='output.jpg') -> None:
         cv2.imwrite(output_filename, out_img)
