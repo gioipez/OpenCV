@@ -43,9 +43,10 @@ for checker in checkers:
 
     ccm = model.getCCM()
     loss = model.getLoss()
-    logger.info(f'ccm: {ccm}')
-    logger.info(f'loss: {loss}')
+    logger.debug(f'ccm: {ccm}')
+    logger.debug(f'loss: {loss}')
 
     # Correct colors in the target image
     out_img = color_correction.apply_color_correction(model)
-    color_correction.save_and_display_results(out_img, output_file_name)
+    color_correction.save_result(out_img, output_file_name)
+    logger.info(f"Image {target_image_path} calibrated.")
