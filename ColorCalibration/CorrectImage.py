@@ -48,8 +48,11 @@ for checker in checkers:
 
     # Correct colors in the target image
     out_img = color_correction.apply_color_correction(model)
-    color_correction.save_result(
+    saveSuccess = color_correction.save_result(
         out_img=out_img,
         output_filename=output_file_name
         )
+    if not saveSuccess:
+        logger.error(f"Error saving the result {saveSuccess}")
+        sys.exit(1)
     logger.info(f"{target_image_path} calibrated. Result {output_file_name}")
