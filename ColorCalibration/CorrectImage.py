@@ -1,5 +1,6 @@
 import sys
-from .ColorCalibration import ColorCorrection, logger
+from ColorCalibration.ColorCalibration import ColorCorrection
+from openCVUtils.opencvLogger import logger
 
 if len(sys.argv) < 3:
     logger.error("Usage: python CorrectImage.py <color_checker_path> <target_image_path> [<output_file_name>]")
@@ -15,6 +16,9 @@ elif len(sys.argv) == 4:
 else:
     logger.error("Invalid number of arguments.")
     sys.exit(1)
+logger.info(f"Color checker: {color_checker_path}")
+logger.info(f"Image to be corrected: {target_image_path}")
+logger.info(f"Output file name: {output_file_name}")
 
 # Create ColorChecker
 color_correction = ColorCorrection(color_checker_path, target_image_path)
