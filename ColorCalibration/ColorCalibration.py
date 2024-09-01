@@ -115,3 +115,6 @@ class ColorCorrection:
         cv2.imshow("Corrected Image", out_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    def save_result(self, out_img, output_filename='output.jpg'):
+        cv2.imwrite(output_filename, out_img)
