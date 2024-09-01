@@ -11,7 +11,7 @@ class rawImage:
         with rawpy.imread(self.file_path) as raw:
             rgb = raw.postprocess(
                 no_auto_bright=True,
-                output_bps=16,
+                output_bps=8,
                 use_camera_wb=True,
                 output_color=rawpy.ColorSpace.sRGB
                 )

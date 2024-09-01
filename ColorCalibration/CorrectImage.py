@@ -1,6 +1,6 @@
 import sys
 from ColorCalibration.ColorCalibration import ColorCorrection
-from openCVUtils.opencvLogger import logger
+from utils.opencvLogger import logger
 
 if len(sys.argv) < 3:
     logger.error("Usage: python CorrectImage.py <color_checker_path> <target_image_path> [<output_file_name>]")
@@ -19,6 +19,10 @@ else:
 logger.info(f"Color checker: {color_checker_path}")
 logger.info(f"Image to be corrected: {target_image_path}")
 logger.info(f"Output file name: {output_file_name}")
+
+if "NEF" in output_file_name or "ARW" in output_file_name:
+    logger.error("Output file name can not contain NEF or ARW, OpenCV doesn't support it")
+    sys.exit(1)
 
 # Create ColorChecker
 color_correction = ColorCorrection(color_checker_path, target_image_path)
