@@ -42,6 +42,14 @@ Note: As you can see in the result the Color Chart is in a different picture tha
 
 `getChartsRGB` Create table charts information in form of `|p_size|average|stddev|max|min|`. [[Github Repository](https://github.com/opencv/opencv_contrib/blob/4.8.0/modules/mcc/src/checker_detector.cpp#L1237)]
 
+# Executing the Image corrector script
+
+From the root directory, execute this following script
+
+
+```shell
+python -m ColorCalibration.CorrectImage ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_3_criolla_amarilla/cc_DSC_4472.JPG ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_3_criolla_amarilla/flower_DSC_4473.JPG /tmp/calibrated_flower_DSC_4473.JPG
+```
 
 
 # References
