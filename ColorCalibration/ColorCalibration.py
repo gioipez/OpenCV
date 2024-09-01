@@ -1,7 +1,8 @@
 import sys
 import cv2
 import numpy as np
-from openCVUtils.opencvLogger import logger
+from utils.opencvLogger import logger
+from utils.rawImageReader import rawImage
 
 
 class ColorCorrection:
@@ -21,8 +22,23 @@ class ColorCorrection:
                             picture.
     """
     def __init__(self, color_checker_path, target_image_path) -> cv2.mcc.CCheckerDetector:
-        self.color_checker_img = cv2.imread(color_checker_path)
-        self.target_image = cv2.imread(target_image_path)
+        isNEFinImageCC = ".NEF" in color_checker_path
+        isARWinImageCC = ".ARW" in color_checker_path
+        isNEFinImageTI = ".NEF" in target_image_path
+        isARWinImageTI = ".ARW" in target_image_path
+        if ((isNEFinImageCC or isARWinImageCC) and (isNEFinImageTI or isARWinImageTI)):
+            logger.info("Both images are raw images")
+            ccImage = rawImage(color_checker_path)
+            tImage = rawImage(target_image_path)
+            self.color_checker_img = ccImage.read_raw_image_bgr()
+            self.target_image = tImage.read_raw_image_bgr()
+        elif ((isNEFinImageCC and not isNEFinImageTI) or (not isNEFinImageCC and isNEFinImageTI) or (isARWinImageCC and not isARWinImageTI) or (not isARWinImageCC and isARWinImageTI)):
+            logger.error("One of the images is not a raw image")
+            sys.exit(1)
+        else:
+            logger.info("Image aren't raw, maybe JPG, BIMP, or other")
+            self.color_checker_img = cv2.imread(color_checker_path)
+            self.target_image = cv2.imread(target_image_path)
 
         if self.color_checker_img is None or self.target_image is None:
             logger.error(
