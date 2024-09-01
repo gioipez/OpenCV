@@ -20,10 +20,10 @@ class rawImage:
 
 if __name__ == "__main__":
     logger.info("Reading raw image")
+    # Don't use `~` instate of home path
     raw_image = rawImage('/Users/giovannilopez/Downloads/2024-08-15_Cultivos/camara1/phenotype_1_15062153_andigena/flower_DSC09050.ARW')
     raw_image = raw_image.read_raw_image_bgr()
 
-    # Mostrar la imagen usando OpenCV
     cv2.imshow('RAW Image', raw_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
