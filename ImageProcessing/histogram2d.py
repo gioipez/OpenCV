@@ -2,45 +2,54 @@
 This script calculates the 2D histogram of an image using OpenCV's calcHist
 function. It takes an image path as a command-line argument and displays
 the histogram plot.
+
 Example usage:
 * python ImageProcessing/histogram2d.py ColorCalibration/calibrated_images/corrected_output.jpg
 """
+
 import cv2
 import sys
 import os
 import numpy as np
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-print(SCRIPT_DIR)
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-from ColorCalibration.ColorCalibration import logger
 from matplotlib import pyplot as plt
+from ColorCalibration.ColorCalibration import logger
 
-if len(sys.argv) < 2:
-    logger.error("Usage: python ImageProcessing/histogram2d.py <image_path>")
-    sys.exit(1)
+def read_image(image_path):
+    """Read an image from a given path."""
+    img = cv2.imread(image_path)
+    if img is None:
+        logger.error(f"File not found: {image_path}")
+        sys.exit(1)
+    return img
 
-# img = cv2.imread('ColorCalibration/calibrated_images/corrected_output.jpg')
-img = cv2.imread(sys.argv[1])
-if img is None:
-    logger.error("File not found")
-    sys.exit(1)
+def calculate_2d_histogram(image):
+    """Calculate the 2D histogram for the Hue and Saturation channels."""
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = np.ones(image.shape[:2], dtype="uint8") * 255  # Full mask
 
-hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-# calcHist Calculates a histogram of a set of arrays and it receive
-# the following parameters:
-#   * [Image]: A list of 3 dimension array.
-#   * channels: Which channels from the given array will be used, in a
-#       hsv image, if we want to use Hue and Saturation, we should pass
-#       [0, 1]
-#   * mask:
-#   * histSize:
-# images, channels, mask, histSize, ranges[, hist[, accumulate]]
+    # Calculate the histogram
+    hist = cv2.calcHist([hsv], [0, 1], mask, [180, 256], [0, 180, 0, 256])
+    return hist
 
-mask = np.ones(img.shape[:2], dtype="uint8") * 255
+def plot_histogram(hist, cmap='viridis'):
+    """Display the histogram with a specified colormap."""
+    plt.imshow(hist, interpolation='nearest', cmap=cmap, vmin=0, vmax=np.max(hist)/2000)
+    plt.title('2D Histogram (Hue and Saturation)')
+    plt.xlabel('Hue')
+    plt.ylabel('Saturation')
+    plt.colorbar(label='Pixel Count')
+    plt.show()
 
-hist = cv2.calcHist([hsv], [0, 1], mask, [180, 256], [0, 180, 0, 256])
+def main(image_path, cmap='viridis'):
+    """Main function to process the image and display the histogram."""
+    img = read_image(image_path)
+    hist = calculate_2d_histogram(img)
+    plot_histogram(hist, cmap)
 
-plt.imshow(hist, interpolation='nearest')
-plt.show()
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        logger.error("Usage: python ImageProcessing/histogram2d.py <image_path> [<cmap>]")
+        sys.exit(1)
+
+    cmap = sys.argv[2] if len(sys.argv) > 2 else 'viridis'  # Default colormap
+    main(sys.argv[1], cmap)
