@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 sam_vit_*
+sam2_hiera*
 
 .DS_Store
 

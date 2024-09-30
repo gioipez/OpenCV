@@ -1,20 +1,48 @@
 # Color Calibration
 
-Two modules are used, [Macbeth Chart module](https://docs.opencv.org/4.x/dd/d19/group__mcc.html) for color checker and [Color Correction Model](https://docs.opencv.org/4.x/de/df4/group__color__correction.html).
+This project implements color calibration using two primary modules: [Macbeth Chart Module](https://docs.opencv.org/4.x/dd/d19/group__mcc.html) for color checker detection and [Color Correction Model](https://docs.opencv.org/4.x/de/df4/group__color__correction.html) for color correction.
+
+## Overview
+
+Color calibration is essential when using color charts to ensure accurate color reproduction in images. This implementation will guide you through the necessary steps to calibrate an image using a reference color checker.
+
+## Prerequisites
+
+- Python 3.7+
+- OpenCV
+- NumPy
+- A compatible camera or image files containing color charts
 
 ## Steps for Color Calibration
 
-### Color checker and model for image calibration
+### Color Checker Detection
 
-Used module was Macbeth Chart Module, it has several steps:
+Follow these steps to detect and use a Macbeth color checker in your images:
 
-1. Read the image where the color checker is located
-2. Create a detector `cv2.mcc.CCheckerDetector.create()`. [[Documentation](https://docs.opencv.org/4.x/d9/d53/classcv_1_1mcc_1_1CCheckerDetector.html)].
-3. Validate if a given image contain a color chart `cv2.mcc.CCheckerDetector.create().process(image=color_checker, chartType=0)`, where `color_checker` is an image readed that could/couldn't contain a color chart as [X-Rite](https://www.xrite.com/categories/calibration-profiling/colorchecker-classic) and is read i.e. `cv2.imread('sample_images/cc_sample_2.jpeg')`.
-4. If there is a posibility to have several color checkers in the same picture, `detector.getListColorChecker()` is used, if want to use the best with highest confidences, use `detector.getBestColorChecker()` from the detector (`detector = cv2.mcc.CCheckerDetector.create()`)
-5. Get the RGB Charts from the Color Checker `checker.getChartsRGB()`. Note: `checker` one color checker inside a list of color checkers inside a picture or the best color checker got from a picture.
-6. Create the Color Correction Model ([CCM](https://docs.opencv.org/4.x/de/df4/group__color__correction.html))
+1. **Read the Image**: Load the image containing the color checker using `cv2.imread()`.
+2. **Create a Detector**: Instantiate the color checker detector:
+   ```python
+   detector = cv2.mcc.CCheckerDetector.create()
    ```
+3. **Process the Image**: Validate if the image contains a color chart
+   ```python
+   detector.process(image=color_checker, chartType=0)
+   ```
+   where `color_checker` is the loaded image.
+4. **Detect Multiple Checkers**: If multiple color checkers may exist, use:
+   ```python
+   detector.getListColorChecker()
+   ```
+   To select the best one based on confidence:
+   ```python
+   detector.getBestColorChecker()
+   ```
+5. **Extract RGB Values**: Get RGB values from the detected color checker:
+   ```python
+   checker.getChartsRGB()
+   ```
+6. **Create the Color Correction Model (CCM)**:
+   ```python
    model = cv2.ccm_ColorCorrectionModel(src, cv2.ccm.COLORCHECKER_Macbeth)
    model.setColorSpace(cv2.ccm.COLOR_SPACE_sRGB)
    model.setCCM_TYPE(cv2.ccm.CCM_3x3)
@@ -25,34 +53,46 @@ Used module was Macbeth Chart Module, it has several steps:
    model.setSaturatedThreshold(0, 0.98)
    model.run()
    ```
-8. Use the mode to calibrate the image
-   ```
+7. **Calibrate the Image**:
+   ```python
    model.infer(to_be_calibrated_img)
    ```
 
-# Results
+### Results
 
 ![ColorCalibratedWithCC](https://github.com/user-attachments/assets/8ac9ceb8-155e-457c-91a2-8032ba693c50)
 
-Note: As you can see in the result the Color Chart is in a different picture than the flower, but the exposition while taking the two picture was the same, so it was almost under certain conditions to be able to get the best calibration as possible without having the patter inside the picture.
+> Note: The color chart used for calibration may not be in the same image as the target flower. Consistent exposure conditions while capturing images will yield better calibration results.
 
-## Questions
+### Common Questions
 
-### What does `cv::mcc::CChecker::getChartsRGB()` return?
+#### What does cv::mcc::CChecker::getChartsRGB() return?
 
-`getChartsRGB` Create table charts information in form of `|p_size|average|stddev|max|min|`. [[Github Repository](https://github.com/opencv/opencv_contrib/blob/4.8.0/modules/mcc/src/checker_detector.cpp#L1237)]
+`getChartsRGB()` generates a table of charts' information, including metrics such as average, standard deviation, maximum, and minimum values. More details can be found in the OpenCV [Github Repository](https://github.com/opencv/opencv_contrib/blob/4.8.0/modules/mcc/src/checker_detector.cpp#L1237).
 
-# Executing the Image corrector script
+# Executing the Image Correction Script
 
-From the root directory, execute this following script
+   To execute the image correction script, use the following command from the root directory:
 
+   ```python
+   python -m ColorCalibration.CorrectImage <color_checker_path> <target_image_path> [<output_file_name>]
+   ```
 
-```shell
-python -m ColorCalibration.CorrectImage ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_3_criolla_amarilla/cc_DSC_4472.JPG ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_3_criolla_amarilla/flower_DSC_4473.JPG /tmp/calibrated_flower_DSC_4473.JPG
-```
+   Example:
+
+   ```python
+   python -m ColorCalibration.CorrectImage ~/Downloads/color_checker.jpg ~/Downloads/flower.jpg /tmp/calibrated_flower.jpg
+   ```
+
+> NOTE: If the CC is in the same image to be corrected use the same path for <color_checker_path> and <target_image_path>
 
 
 # References
 * [Color Correction Model](https://docs.opencv.org/4.x/d1/dc1/tutorial_ccm_color_correction_model.html).
 * [Converting Color Correction opencv module example from C++ to python](https://stackoverflow.com/questions/66302777/converting-color-correction-opencv-module-example-from-c-to-python).
 * [Unable to perform color correction from opencv tutorial](https://forum.opencv.org/t/unable-to-perform-color-correction-from-opencv-tutorial/2141).
+* [X-Rite](https://www.xrite.com/categories/calibration-profiling/colorchecker-classic)
+* [Macbeth Chart module](https://docs.opencv.org/4.x/dd/d19/group__mcc.html)
+* [Color Correction Model](https://docs.opencv.org/4.x/de/df4/group__color__correction.html)
+* [CCheckerDetector](https://docs.opencv.org/4.x/d9/d53/classcv_1_1mcc_1_1CCheckerDetector.html)
+* [CCM](https://docs.opencv.org/4.x/de/df4/group__color__correction.html)
