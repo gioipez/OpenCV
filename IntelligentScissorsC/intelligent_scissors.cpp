@@ -4,6 +4,7 @@
 #include <opencv2/line_descriptor.hpp>
 #include <iostream>
 #include <vector>
+#include <filesystem> // For handling file paths
 
 bool hasMap = false;
 cv::segmentation::IntelligentScissorsMB tool; // Global tool instance
@@ -76,9 +77,47 @@ void showSelectedArea(const cv::Mat& src, const std::vector<cv::Point>& contour)
     cv::imshow("Selected Area", output);
 }
 
-int main() {
+void saveSegmentedImage(const cv::Mat& src, const std::vector<cv::Point>& contour, const std::string& outputDir, const std::string& inputImageName) {
+    // Create a mask for the selected area
+    cv::Mat mask = cv::Mat::zeros(src.size(), CV_8UC1);
+    std::vector<std::vector<cv::Point>> contours = {contour};
+    cv::fillPoly(mask, contours, cv::Scalar(255));
+
+    // Create an output image and apply the mask
+    cv::Mat output;
+    src.copyTo(output, mask);
+
+    // Construct the output file path
+    std::string outputPath = outputDir + "/segmented_" + inputImageName + ".jpg"; // Use .jpg as the output format
+
+    // Save the segmented image
+    cv::imwrite(outputPath, output);
+    std::cout << "Segmented image saved to: " << outputPath << std::endl;
+}
+
+std::string getBaseName(const std::string& filePath) {
+    size_t lastSlash = filePath.find_last_of("/\\");
+    size_t lastDot = filePath.find_last_of(".");
+    std::string baseName = (lastSlash == std::string::npos) ? filePath : filePath.substr(lastSlash + 1);
+    if (lastDot != std::string::npos) {
+        baseName = baseName.substr(0, lastDot - lastSlash - 1); // Remove extension
+    }
+    return baseName;
+}
+
+
+int main(int argc, char** argv) {
+    // Check for correct number of arguments
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <image_path> <output_directory>" << std::endl;
+        return -1;
+    }
+
+    std::string imagePath = argv[1];
+    std::string outputDir = argv[2];
+
     // Load the image
-    cv::Mat src = cv::imread("/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated/flower_DSC_4573_JPG.jpg");
+    cv::Mat src = cv::imread(imagePath);
     if (src.empty()) {
         std::cerr << "Could not open or find the image!" << std::endl;
         return -1;
@@ -97,6 +136,9 @@ int main() {
     // Set mouse callback with userdata (the image)
     cv::setMouseCallback("canvasOutput", mouseCallback, &src);
 
+    // Get the base name of the input image
+    std::string inputImageName = getBaseName(imagePath);
+
     while (true) {
         // Wait until a key is pressed
         int key = cv::waitKey(1);
@@ -105,6 +147,15 @@ int main() {
         } else if (key == ' ') { // Space key
             // Show the selected area based on the final contour
             showSelectedArea(src, finalContour); // Show selected area
+        } else if (key == 'c') { // Clear points
+            finalContour.clear(); // Clear the contour points
+            std::cout << "Cleared points. Start a new selection." << std::endl;
+        } else if (key == 's') { // Save segmented image
+            if (!finalContour.empty()) {
+                saveSegmentedImage(src, finalContour, outputDir, inputImageName); // Save segmented image
+            } else {
+                std::cout << "No contour points to save." << std::endl;
+            }
         }
     }
 
