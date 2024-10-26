@@ -4,6 +4,12 @@ import numpy as np
 from collections import Counter
 from utils.ManageImage import save_result, show_image
 from utils.opencvLogger import logger
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(description='Segment a flower image and analyze its colors.')
+parser.add_argument('image_name', type=str, help='The name of the image file to process (e.g., flower_DSC09124.jpg)')
+args = parser.parse_args()
 
 # Directories
 root_directory = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/'
@@ -11,7 +17,7 @@ calibrated_image_path = 'calibrated/'
 sam_mask_directory = 'segmented_images_SAM2/'
 is_mask_directory = 'segmented_images_intelligent_scissors/'
 
-image_name = 'flower_DSC09124.jpg'
+image_name = args.image_name  # Get the image name from command line arguments
 
 image_path = os.path.join(root_directory, calibrated_image_path, image_name)
 mask_image_path = os.path.join(root_directory, sam_mask_directory, image_name)
