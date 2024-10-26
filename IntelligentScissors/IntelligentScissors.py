@@ -47,6 +47,7 @@ def intelligent_scissors(image):
 def main():
     # Load an image
     image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated/flower_DSC09100_JPG.jpg'
+    # BGR order
     image = cv2.imread(image_path)
 
     if image is None:

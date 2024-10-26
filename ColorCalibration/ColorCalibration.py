@@ -37,6 +37,7 @@ class ColorCorrection:
             sys.exit(1)
         else:
             logger.debug("Image aren't raw, found JPG, BIMP, or other")
+            # BGR order
             self.color_checker_img = cv2.imread(color_checker_path)
             self.target_image = cv2.imread(target_image_path)
 
