@@ -16,6 +16,7 @@ from ColorCalibration.ColorCalibration import logger
 
 def read_image(image_path):
     """Read an image from a given path."""
+    # BGR order
     img = cv2.imread(image_path)
     if img is None:
         logger.error(f"File not found: {image_path}")

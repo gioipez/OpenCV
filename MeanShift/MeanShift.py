@@ -1,20 +1,36 @@
 import cv2
+import os
 import numpy as np
 from collections import Counter
-from utils.ManageImage import save_result
+from utils.ManageImage import save_result, show_image
 from utils.opencvLogger import logger
 
-# Load the image
-image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/segmented_images_SAM2/flower_DSC_4561.jpg'
+# Directories
+root_directory = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/'
+calibrated_image_path = 'calibrated/'
+sam_mask_directory = 'segmented_images_SAM2/'
+is_mask_directory = 'segmented_images_intelligent_scissors/'
+
+image_name = 'flower_DSC09124.jpg'
+
+image_path = os.path.join(root_directory, calibrated_image_path, image_name)
+mask_image_path = os.path.join(root_directory, sam_mask_directory, image_name)
+
+# Load the image in BGR
 image = cv2.imread(image_path)
+image_mask = cv2.imread(mask_image_path)
+
+gray = cv2.cvtColor(image_mask, cv2.COLOR_BGR2GRAY)
+_, binary_mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
+
+# Use the mask to segment the flower from the background
+flower_segmented = cv2.bitwise_and(image, image, mask=binary_mask)
 
 # Check if the image was loaded successfully
-if image is None:
+if flower_segmented is None:
     logger.error(f"Error: Unable to load image at {image_path}")
 else:
-    if cv2.cvtColor(image, cv2.COLOR_BGR2HSV) is not None:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    image_hsv = image
+    image_hsv = cv2.cvtColor(flower_segmented, cv2.COLOR_BGR2HSV)
 
     # Apply MeanShift algorithm for smoothing
     spatial_radius = 30  # Adjust spatial radius to better capture details in the flower
@@ -25,10 +41,10 @@ else:
     mean_shift_result = cv2.pyrMeanShiftFiltering(image_hsv, spatial_radius, color_radius, max_level)
 
     # Convert the result back to RGB for logging and visualization
-    result_image = cv2.cvtColor(mean_shift_result, cv2.COLOR_HSV2RGB)
+    result_image = cv2.cvtColor(mean_shift_result, cv2.COLOR_HSV2BGR)
 
-    save_result(cv2.cvtColor(image, cv2.COLOR_HSV2RGB), 'flower_segmented_source_DSC_4561.jpg')
-    save_result(result_image, 'flower_segmented_result_DSC_4561.jpg')
+    save_result(image, f'flower_segmented_source_{image_name}')
+    save_result(result_image, f'flower_segmented_result_{image_name}')
 
     # Now, extract colors and log them based on their frequency
     # Reshape the image to be a list of pixels
@@ -48,6 +64,8 @@ else:
     sorted_colors = color_counter.most_common()
 
     # Log the most common colors (now excluding black)
+    logger.info(f"spatial_radius: {spatial_radius}. color_radius: {color_radius}")
     logger.info("Most common colors found in the segmented image (excluding black):")
-    for color, count in sorted_colors[:10]:  # Log top 20 most frequent colors
-        logger.info(f"Color (RGB): {color[0]},{color[1]},{color[2]}, Count: {count}")
+    for color, count in sorted_colors[:10]:  # Log top 10 most frequent colors
+        # result_image is stored in BGR, that's why we print in RGB, to directly understand
+        logger.info(f"Color (RBG): {color[2]},{color[1]},{color[0]}, Count: {count}")

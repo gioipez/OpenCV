@@ -69,6 +69,7 @@ model.fit(train_generator, epochs=10, validation_data=val_generator)
 
 def predict_and_visualize(image_path, model):
     # Load and preprocess the image
+    # BGR order
     img = cv2.imread(image_path)
     img_resized = cv2.resize(img, (128, 128))
     img_array = np.expand_dims(img_resized, axis=0) / 255.0
