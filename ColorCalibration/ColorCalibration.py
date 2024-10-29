@@ -78,7 +78,7 @@ class ColorCorrection:
         src /= 255
         return src
 
-    def create_color_correction_model(self, src, color_checker=cv2.ccm.COLORCHECKER_Macbeth, color_space=cv2.ccm.COLOR_SPACE_sRGB, ccm_type=cv2.ccm.CCM_3x3, gamma=2.2, degree=3, distance=cv2.ccm.DISTANCE_CIE2000, linearization=cv2.ccm.LINEARIZATION_GAMMA, saturated_threshold_min=0, saturated_threshold_max=0.98) -> cv2.ccm_ColorCorrectionModel:
+    def create_color_correction_model(self, src, color_checker=cv2.ccm.COLORCHECKER_Macbeth, color_space=cv2.ccm.COLOR_SPACE_sRGB, ccm_type=cv2.ccm.CCM_4x3, gamma=2.2, degree=4, distance=cv2.ccm.DISTANCE_RGB, linearization=cv2.ccm.LINEARIZATION_GAMMA, saturated_threshold_min=0, saturated_threshold_max=0.98) -> cv2.ccm_ColorCorrectionModel:
         """
         Create and configure the Color Correction Model (CCM).
         """
@@ -87,8 +87,10 @@ class ColorCorrection:
         model.setCCM_TYPE(ccm_type)
         model.setDistance(distance)
         model.setLinear(linearization)
-        model.setLinearGamma(gamma)
-        model.setLinearDegree(degree)
+        if linearization == cv2.ccm.LINEARIZATION_GAMMA:
+            model.setLinearGamma(gamma)
+        else:
+            model.setLinearDegree(degree)
         model.setSaturatedThreshold(saturated_threshold_min, saturated_threshold_max)
         model.run()
         return model
