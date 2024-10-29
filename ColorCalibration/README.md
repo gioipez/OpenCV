@@ -81,7 +81,7 @@ Follow these steps to detect and use a Macbeth color checker in your images:
    Example:
 
    ```python
-   python -m ColorCalibration.CorrectImage ~/Downloads/color_checker.jpg ~/Downloads/flower.jpg /tmp/calibrated_flower.jpg
+   python -m ColorCalibration.CorrectImage ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_10_CAJAMARCA/cc_DSC_4559.JPG  ~/Downloads/2024-08-15_Cultivos/camara3/phenotype_10_CAJAMARCA/flower_DSC_4560.JPG --output_file_name /tmp/flower_DSC_4560_JPG4x3.jpg --ccm_type 1 --distance 6
    ```
 
 > NOTE: If the CC is in the same image to be corrected use the same path for <color_checker_path> and <target_image_path>
