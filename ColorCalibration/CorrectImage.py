@@ -18,6 +18,7 @@ parser.add_argument('--distance', type=int, default=cv2.ccm.DISTANCE_RGB, help="
 parser.add_argument('--saturated_threshold_min', type=float, default=0, help="Minimum saturated threshold")
 parser.add_argument('--saturated_threshold_max', type=float, default=0.98, help="Maximum saturated threshold")
 parser.add_argument('--linearization', type=int, default=cv2.ccm.LINEARIZATION_GAMMA, help="Linearization type")
+parser.add_argument('--color_space', type=int, default=cv2.ccm.COLOR_SPACE_sRGB, help="Color space for CCM")
 
 args = parser.parse_args()
 
@@ -32,6 +33,7 @@ distance = args.distance
 saturated_threshold_min = args.saturated_threshold_min
 saturated_threshold_max = args.saturated_threshold_max
 linearization = args.linearization
+color_space = args.color_space
 
 logger.debug(f"Color checker: {color_checker_path}")
 logger.debug(f"Image to be corrected: {target_image_path}")
@@ -56,7 +58,7 @@ for checker in checkers:
     color_checker_rgb = color_correction.draw_color_checker(checker)
     # Get Charts from Color Charts in form of |p_size|average|stddev|max|min|
     src = color_correction.get_charts_rgb(checker)
-    model = color_correction.create_color_correction_model(src, ccm_type=ccm_type, gamma=gamma, distance=distance, saturated_threshold_min=saturated_threshold_min, saturated_threshold_max=saturated_threshold_max, linearization=linearization)
+    model = color_correction.create_color_correction_model(src, ccm_type=ccm_type, gamma=gamma, distance=distance, saturated_threshold_min=saturated_threshold_min, saturated_threshold_max=saturated_threshold_max, linearization=linearization, color_space=color_space)
 
     ccm = model.getCCM()
     loss = model.getLoss()
