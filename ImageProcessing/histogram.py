@@ -39,14 +39,14 @@ def compute_histograms(image):
         histograms[color] = hist
     return histograms
 
-def show_image_and_histograms(image, histograms):
+def show_image_and_histograms(image, histograms, space='RGB'):
     """Show image and its histograms in a single figure."""
     plt.figure(figsize=(12, 6))
     
     # Show the image in the first subplot
     plt.subplot(1, 2, 1)
     plt.imshow(image)  # No need for conversion here, the image is already in RGB
-    plt.title('Image')
+    plt.title(f'Image {space}')
     plt.axis('off')  # Turn off axis labels for the image
     
     # Show the histograms in the second subplot
@@ -68,7 +68,8 @@ if __name__ == "__main__":
     # image_path = 'ImageProcessing/images/flower_DSC09037_3x3_nef.jpg'
     # image_path = 'ImageProcessing/images/flower_DSC09037.JPG'
     # image_path = 'ImageProcessing/images/flower_DSC09037_3x3_jpg.jpg'
-    image_path = '/tmp/flower_DSC09076_4x3_jpg.jpg'
+    image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_cie/flower_DSC09070.jpg'
+    # image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_rgb/flower_DSC09070.jpg'
 
     
     # Load the image (supports both RAW and standard image formats)
@@ -81,4 +82,4 @@ if __name__ == "__main__":
         histograms = compute_histograms(image)
         
         # Display the image and its histograms
-        show_image_and_histograms(image, histograms)
+        show_image_and_histograms(image, histograms, "CIE")

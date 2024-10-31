@@ -11,6 +11,9 @@ sam2_hiera*
 calibrated_images/
 .vscode
 
+result/
+calibrated_rhs_colour_chart_cie/
+
 # C extensions
 *.so
 
