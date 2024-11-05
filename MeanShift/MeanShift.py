@@ -1,6 +1,5 @@
 import cv2
 import os
-import sys
 import numpy as np
 from collections import Counter
 from utils.ManageImage import save_result, show_image
@@ -31,8 +30,8 @@ def apply_mask(image, mask_path=None):
         _, binary_mask = cv2.threshold(image_mask, 0, 255, cv2.THRESH_BINARY)
         
         # Debug information to verify the types and shapes
-        logger.info(f"Image shape: {image.shape}, type: {image.dtype}")
-        logger.info(f"Mask shape: {binary_mask.shape}, type: {binary_mask.dtype}")
+        logger.debug(f"Image shape: {image.shape}, type: {image.dtype}")
+        logger.debug(f"Mask shape: {binary_mask.shape}, type: {binary_mask.dtype}")
         
         # Apply the binary mask to the image
         return cv2.bitwise_and(image, image, mask=binary_mask)
@@ -138,7 +137,7 @@ def save_html_report(result_dir, image_path, source_img_filename, result_img_fil
 # Main function for processing
 def process_image(image_path, mask_path=None):
     # Create result directory if it doesn't exist
-    result_dir = "result"
+    result_dir = "result_is"
     os.makedirs(result_dir, exist_ok=True)
 
     # Load and segment image
@@ -151,7 +150,7 @@ def process_image(image_path, mask_path=None):
     image_hsv = cv2.cvtColor(segmented_image, cv2.COLOR_BGR2HSV)
 
     spatial_radius=400
-    color_radius=50
+    color_radius=15
     mean_shift_result = mean_shift_segmentation(image_hsv, spatial_radius, color_radius)
     result_image = cv2.cvtColor(mean_shift_result, cv2.COLOR_HSV2BGR)
 

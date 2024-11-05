@@ -12,6 +12,7 @@ calibrated_images/
 .vscode
 
 result/
+result_is/
 calibrated_rhs_colour_chart_cie/
 
 # C extensions
