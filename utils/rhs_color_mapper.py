@@ -1854,7 +1854,8 @@ def find_closest_colors_with_ucl(target_hex, n=5):
         rgb = hex_to_rgb(hex_color)
         lab = rgb_to_lab(rgb)
         distance = cie_lab_distance(target_lab, lab)
-        ucl_name = UCL_NAME.get(name, "Unknown")  # Fetch UCL name or use "Unknown" if not found
+        ucl = UCL.get(name, "NotFound")  # Fetch UCL value or use "Unknown" if not found
+        ucl_name = UCL_NAME.get(ucl, "Unknown")  # Fetch UCL name or use "Unknown" if not found
         distances.append((name, rgb, distance, ucl_name))
 
     # Sort by distance and return the top n closest colors

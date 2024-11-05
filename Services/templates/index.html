@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Color Analysis</title>
+</head>
+<body>
+    <h2>Enter Image Path for Dominant Color Analysis</h2>
+    <form action="/process" method="post">
+        <label for="image_path">Image Path:</label>
+        <input type="text" id="image_path" name="image_path" required><br><br>
+
+        <label for="mask_path">Mask Path (Optional):</label>
+        <input type="text" id="mask_path" name="mask_path"><br><br>
+
+        <label for="num_colors">Number of Colors (default 5):</label>
+        <input type="number" id="num_colors" name="num_colors" min="1" value="5"><br><br>
+
+        <input type="submit" value="Analyze Colors">
+    </form>
+</body>
+</html>
