@@ -3,6 +3,7 @@ import rawpy
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+from MeanShift.MeanShift import apply_mask
 
 def load_image(image_path):
     """Load image, supporting both RAW and regular image formats."""
@@ -36,6 +37,8 @@ def compute_histograms(image):
     # Compute histogram for each channel
     for (channel, color) in zip(channels, colors):
         hist = cv2.calcHist([channel], [0], None, [256], [0, 256])
+        # Remove black from Histogram
+        hist[0] = 0
         histograms[color] = hist
     return histograms
 
@@ -68,8 +71,9 @@ if __name__ == "__main__":
     # image_path = 'ImageProcessing/images/flower_DSC09037_3x3_nef.jpg'
     # image_path = 'ImageProcessing/images/flower_DSC09037.JPG'
     # image_path = 'ImageProcessing/images/flower_DSC09037_3x3_jpg.jpg'
-    image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_cie/flower_DSC09070.jpg'
+    image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_cie/flower_DSC09028_JPG.jpg'
     # image_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_rgb/flower_DSC09070.jpg'
+    mask_path = '/Users/giovannilopez/Downloads/2024-08-15_Cultivos/segmented_images_intelligent_scissors/segmented_flower_DSC09028_JPG.jpg'
 
     
     # Load the image (supports both RAW and standard image formats)
@@ -78,8 +82,11 @@ if __name__ == "__main__":
     if image is None:
         print(f"Failed to load image: {image_path}")
     else:
+        segmented_image = apply_mask(image, mask_path)
         # Compute histograms for each color channel
-        histograms = compute_histograms(image)
+        histograms = compute_histograms(segmented_image)
         
         # Display the image and its histograms
-        show_image_and_histograms(image, histograms, "CIE")
+        
+        max_values = (histograms['r'].tolist().index(histograms['r'].max())+1,  histograms['g'].tolist().index(histograms['g'].max())+1, histograms['b'].tolist().index(histograms['b'].max())+1)
+        show_image_and_histograms(segmented_image, histograms, f"CIE - RGB{max_values}")

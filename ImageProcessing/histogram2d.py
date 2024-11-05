@@ -13,6 +13,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 from ColorCalibration.ColorCalibration import logger
+from MeanShift.MeanShift import apply_mask
 
 def read_image(image_path):
     """Read an image from a given path."""
@@ -41,16 +42,23 @@ def plot_histogram(hist, cmap='viridis'):
     plt.colorbar(label='Pixel Count')
     plt.show()
 
-def main(image_path, cmap='viridis'):
+def main(image_path, cmap='viridis', mask_path=None):
     """Main function to process the image and display the histogram."""
     img = read_image(image_path)
-    hist = calculate_2d_histogram(img)
+    segmented_image = apply_mask(img, mask_path)
+    hist = calculate_2d_histogram(segmented_image)
     plot_histogram(hist, cmap)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        logger.error("Usage: python ImageProcessing/histogram2d.py <image_path> [<cmap>]")
+        logger.error("Usage: python ImageProcessing/histogram2d.py <image_path> [<mask_path>] [<cmap>]")
         sys.exit(1)
 
-    cmap = sys.argv[2] if len(sys.argv) > 2 else 'viridis'  # Default colormap
-    main(sys.argv[1], cmap)
+    cmap = sys.argv[3] if len(sys.argv) > 3 else 'viridis'  # Default colormap
+    mask_path = sys.argv[2] if len(sys.argv) > 2 else None
+    main(image_path=sys.argv[1], cmap=cmap, mask_path=mask_path)
+
+"""
+Sample usage
+    python -m  ImageProcessing.histogram2d /Users/giovannilopez/Downloads/2024-08-15_Cultivos/calibrated_all_flowers_cie/flower_DSC09172_JPG.jpg /Users/giovannilopez/Downloads/2024-08-15_Cultivos/segmented_images_intelligent_scissors/segmented_flower_DSC09172_JPG.jpg Grays
+"""
