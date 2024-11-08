@@ -4,6 +4,7 @@ import numpy as np
 from utils.opencvLogger import logger
 
 def save_result(out_img, output_filename) -> bool:
+    out_img = cv2.cvtColor(out_img, cv2.COLOR_BGR2RGB)
     return cv2.imwrite(output_filename, out_img)
 
 def read_image(image_path, color_map="RGB"):

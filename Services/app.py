@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, send_from_directory
 from ImageProcessing.Kmeans import get_dominant_color
 from utils.rhs_color_mapper import rgb_to_hex, find_closest_colors_with_ucl
+from utils.ManageImage import save_result
 
 app = Flask(__name__)
 
@@ -23,12 +24,15 @@ def process_image():
     num_colors = int(request.form.get('num_colors', 5))
 
     # Get dominant colors
-    dominant_colors = get_dominant_color(f"Services/image/{image_path}", num_colors=num_colors, mask_path=f"Services/image/{mask_path}")
+    segmented_image, dominant_colors, best_k, best_score, len_info = get_dominant_color(f"Services/image/{image_path}", max_k=num_colors, mask_path=f"Services/image/{mask_path}")
+    save_result(segmented_image, f"Services/image/final_{image_path}")
 
     # Generate HTML output for each color
-    result_html = f"<h3>Top closest colors for {image_path} using K-Means with {num_colors} clusters:</h3>"
+    result_html = f"<h3>Top closest colors for {image_path} using K-Means with {best_k} clusters, the silhouete {best_score}:</h3>"
     # Shows image from image path
-    result_html += f"<img src='/image/{image_path}' style='max-width: 300px; max-height: 300px;'><br><br>"
+    result_html += f"<img src='/image/{image_path}' style='max-width: 300px; max-height: 300px;'>"
+    result_html += f"<img src='/image/final_{image_path}' style='max-width: 300px; max-height: 300px;'><br>"
+    result_html += f"<p>Total non-black pixel feeding KMeans {len_info[1]} </p>"
 
     for color_number, color in enumerate(dominant_colors):
         # rgb_values = tuple(color.astype(int))
@@ -41,7 +45,7 @@ def process_image():
         # Display primary color box and details
         result_html += (
             f"<div style='background-color:{rgb_hex}; width:50px; height:50px; display:inline-block;'></div> "
-            f"{color_number+1}. RGB: {r},{g},{b}<br>"
+            f"{color_number+1}. RGB: {r},{g},{b}. Percentage: {(len_info[0][color_number][0]/len_info[1])*100:.2f}%. Total pixel: {len_info[0][color_number][0]}<br>"
             "<ul>"
         )
         
