@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 from skimage import color
+from math import sqrt, degrees, atan2, radians, sin, cos, exp
 # Color informatino extracted from https://azaleas.org/rhs-color-fan-1/
 # Archived https://web.archive.org/web/20230923032935/https://azaleas.org/rhs-color-fan-1/
 
@@ -1845,7 +1846,58 @@ def find_closest_colors_in_rgb(target_hex, n=5):
 # top_5_closest = find_closest_colors(sample_hex)
 # top_5_closest
 
-def find_closest_colors_with_ucl(target_hex, n=5):
+# CIEDE2000 formula implementation
+def ciede2000(lab1, lab2):
+    L1, a1, b1 = lab1
+    L2, a2, b2 = lab2
+    
+    # Step 1: Calculate C, h, and deltaL
+    C1 = sqrt(a1 ** 2 + b1 ** 2)
+    C2 = sqrt(a2 ** 2 + b2 ** 2)
+    avg_C = (C1 + C2) / 2
+
+    G = 0.5 * (1 - sqrt((avg_C ** 7) / (avg_C ** 7 + 25 ** 7)))
+    a1p = (1 + G) * a1
+    a2p = (1 + G) * a2
+    C1p = sqrt(a1p ** 2 + b1 ** 2)
+    C2p = sqrt(a2p ** 2 + b2 ** 2)
+    h1p = degrees(atan2(b1, a1p)) % 360
+    h2p = degrees(atan2(b2, a2p)) % 360
+
+    deltaL = L2 - L1
+    deltaC = C2p - C1p
+
+    deltah = h2p - h1p
+    if C1p * C2p != 0:
+        if abs(deltah) <= 180:
+            deltaH = deltah
+        elif deltah > 180:
+            deltaH = deltah - 360
+        else:
+            deltaH = deltah + 360
+    else:
+        deltaH = 0
+    deltaH = 2 * sqrt(C1p * C2p) * sin(radians(deltaH) / 2)
+
+    # Step 4: Calculate weight factors
+    avg_L = (L1 + L2) / 2
+    avg_Cp = (C1p + C2p) / 2
+    avg_hp = (h1p + h2p) / 2 if abs(h1p - h2p) <= 180 else (h1p + h2p + 360) / 2
+    T = 1 - 0.17 * cos(radians(avg_hp - 30)) + 0.24 * cos(radians(2 * avg_hp)) + \
+        0.32 * cos(radians(3 * avg_hp + 6)) - 0.2 * cos(radians(4 * avg_hp - 63))
+    SL = 1 + (0.015 * (avg_L - 50) ** 2) / sqrt(20 + (avg_L - 50) ** 2)
+    SC = 1 + 0.045 * avg_Cp
+    SH = 1 + 0.015 * avg_Cp * T
+    delta_theta = 30 * exp(-((avg_hp - 275) / 25) ** 2)
+    RC = 2 * sqrt((avg_Cp ** 7) / (avg_Cp ** 7 + 25 ** 7))
+    RT = -sin(radians(2 * delta_theta)) * RC
+
+    # Step 5: Calculate final deltaE
+    deltaE = sqrt((deltaL / SL) ** 2 + (deltaC / SC) ** 2 + (deltaH / SH) ** 2 + RT * (deltaC / SC) * (deltaH / SH))
+    return deltaE
+
+# Modify find_closest_colors_with_ucl to accept distance method as a parameter
+def find_closest_colors_with_ucl(target_hex, n=5, method='CIE2000'):
     target_rgb = hex_to_rgb(target_hex)
     target_lab = rgb_to_lab(target_rgb)
 
@@ -1853,12 +1905,17 @@ def find_closest_colors_with_ucl(target_hex, n=5):
     for name, hex_color in RGB.items():
         rgb = hex_to_rgb(hex_color)
         lab = rgb_to_lab(rgb)
-        distance = cie_lab_distance(target_lab, lab)
+
+        # Choose distance method
+        if method == 'CIE2000':
+            distance = ciede2000(target_lab, lab)
+        else:
+            distance = cie_lab_distance(target_lab, lab)
+            
         ucl = UCL.get(name, "NotFound")  # Fetch UCL value or use "Unknown" if not found
         ucl_name = UCL_NAME.get(ucl, "Unknown")  # Fetch UCL name or use "Unknown" if not found
         distances.append((name, rgb, distance, ucl_name))
 
-    # Sort by distance and return the top n closest colors
     closest_colors = sorted(distances, key=lambda x: x[2])[:n]
     return closest_colors
 
@@ -1890,7 +1947,10 @@ def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Retrieve color mappings.")
     parser.add_argument("--rgb", type=str, help="RGB value to look up in the format 'R,G,B' (e.g., '229,227,161')")
+    parser.add_argument('--method', choices=['CIE76', 'CIE2000'], default='CIE2000', help="Distance calculation method: CIE76 or CIE2000")
     args = parser.parse_args()
+
+    method = args.method
 
     if args.rgb:
         # Convert RGB input to hexadecimal
@@ -1899,7 +1959,7 @@ def main():
             rgb_hex = rgb_to_hex(r, g, b)
             print(f"Converted RGB to hex: {rgb_hex}")
 
-            top_5_closest_in_rgb = find_closest_colors_with_ucl(rgb_hex)
+            top_5_closest_in_rgb = find_closest_colors_with_ucl(rgb_hex, method=method)
             # Display the results
             print("Top 5 closest colors:")
             for color in top_5_closest_in_rgb:
