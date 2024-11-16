@@ -30,12 +30,14 @@ def get_dominant_color(image_path, max_k=10, mask_path=None):
     best_k = 1
     best_score = -1
     best_kmeans = None
+    ks_and_score = []
 
     for k in range(2, max_k + 1):  # Start from 2 to avoid single-cluster scenario
         kmeans = KMeans(n_clusters=k)
         kmeans.fit(non_black_pixels)
         labels = kmeans.labels_
         score = silhouette_score(non_black_pixels, labels)
+        ks_and_score.append((k, float(score)))
         if score > best_score:
             best_k = k
             best_score = score
@@ -49,7 +51,7 @@ def get_dominant_color(image_path, max_k=10, mask_path=None):
     # Sort colors by frequency
     sorted_colors = sorted(zip(counts.values(), colors), reverse=True)
     dominant_colors = [color for _, color in sorted_colors]
-    return segmented_image, dominant_colors, best_k, best_score, (sorted_colors, len(non_black_pixels))
+    return segmented_image, dominant_colors, best_k, best_score, (sorted_colors, len(non_black_pixels)), ks_and_score
 
 
 def main():
@@ -57,9 +59,10 @@ def main():
     parser.add_argument('image_path', type=str, help='Path to the image file')
     parser.add_argument('--mask_path', type=str, help='Path to the mask file')
     args = parser.parse_args()
-    segmented_image, dominant_colors, best_k, best_score, len_info = get_dominant_color(args.image_path, max_k=10, mask_path=args.mask_path)
+    segmented_image, dominant_colors, best_k, best_score, len_info, ks_and_score = get_dominant_color(args.image_path, max_k=10, mask_path=args.mask_path)
     logger.info(f"Best K: {best_k}, Best Silhouette Score: {best_score:.4f}.")
     logger.info(f"Number of non-black pixels analized with K-Means: {len_info[1]}")
+    logger.info(f"Best Ks and their respective Silhouette Scores: {ks_and_score}")
     for index, color in enumerate(dominant_colors):      
         r, g, b = map(int, color)
         rgb_hex = rgb_to_hex(r, g, b)
