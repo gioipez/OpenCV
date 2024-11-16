@@ -1,4 +1,22 @@
 
+# Determine prominent color of a Flower with an Original Image and a segmented one
+
+Using the FLASK Service, it will ask you the name of the flower and the segmented image, like this:
+
+<img width="554" alt="image" src="https://github.com/user-attachments/assets/82e72fc9-55b5-4eee-9e30-888915375bdb">
+
+> NOTE: Images should be stored under `image` directory. In my case, sitting in the root folder, it will be something like `Services/image/`
+
+## This is the beuty result: 
+
+<img width="1084" alt="image" src="https://github.com/user-attachments/assets/ff50caf6-f6f5-4ca3-aabe-deb281e9cdfe">
+
+You can run with this:
+
+```shell
+python -m Services.app
+```
+
 # OpenCV
 
 This repo contain code to run OpenCV [core module](https://pypi.org/project/opencv-python/) and [contrib](https://pypi.org/project/opencv-contrib-python/) in Python
