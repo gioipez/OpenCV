@@ -13,7 +13,7 @@ imageio==2.35.1
 importlib_metadata==8.5.0
 importlib_resources==6.4.5
 itsdangerous==2.2.0
-Jinja2==3.1.4
+Jinja2==3.1.6
 kiwisolver==1.4.7
 lazy_loader==0.4
 MarkupSafe==2.1.5
